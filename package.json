@@ -17,6 +17,7 @@
   },
   "license": "MIT",
   "scripts": {
+    "test": "mocha",
     "lint": "jshint Qx.js"
   },
   "dependencies": {

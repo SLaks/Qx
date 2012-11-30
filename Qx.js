@@ -18,8 +18,8 @@ function handleArgs() {
 		return method.apply(null, args);
 
 	// method(array) - Array of functions
-	if (args[0] instanceof Array)
-		return method(args[0], function (f, index) { return args[1](index); });
+	if (args[0] instanceof Array || Q.isPromise(args[0]))
+		return method(args[0], function (f, index) { return args[0](index); });
 
 	// method(function) - Return function that takes array of items
 	if (typeof args[0] === "function")
