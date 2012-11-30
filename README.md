@@ -24,7 +24,6 @@ var functions = [
 	function() { return  somePromise; },
 	function() { return otherPromise; },
 ];
-
 Qx.map(functions)
   .then(function(results) {
 	  ...;
