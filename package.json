@@ -1,0 +1,24 @@
+{
+  "name": "qx",
+  "version": "0.1.0",
+  "description": "A set of LINQ-like extensions to Q for working with arrays of promises.",
+  "homepage": "https://github.com/SLaks/Qx",
+  "author": "Schabse Laks <Dev@SLaks.net> (http://slaks.net)",
+  "keywords": [
+    "q",
+    "promises",
+    "linq",
+    "arrays"
+  ],
+  "main": "qx.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/SLaks/Qx.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "q": ">=0.8.11"
+  },
+  "devDependencies": {
+  }
+}
