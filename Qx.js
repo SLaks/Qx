@@ -3,6 +3,16 @@
 var Q = require('q');
 
 /**
+ * A callback that takes a function from an array and executes it.
+ */
+var functionConverter = function (f, index) {
+	if (Q.isPromise(f))
+		return f.fcall(index);
+	else
+		return f(index);
+}
+
+/**
  * Normalizes the four supported arguments styles for array methods.
  * Array methods can take an array and/or a callback, or neither.
  * See the README.
@@ -19,7 +29,7 @@ function handleArgs() {
 
 	// method(array) - Array of functions
 	if (args[0] instanceof Array || Q.isPromise(args[0]))
-		return method(args[0], function (f, index) { return args[0](index); });
+		return method(args[0], functionConverter);
 
 	// method(function) - Return function that takes array of items
 	if (typeof args[0] === "function")
@@ -28,7 +38,7 @@ function handleArgs() {
 	// method() - Return function that takes array of functions
 	if (args.length === 0) {
 		return function (funcArray) {
-			return method(funcArray, function (f, index) { return args[1](index); });
+			return method(funcArray, functionConverter);
 		};
 	}
 
