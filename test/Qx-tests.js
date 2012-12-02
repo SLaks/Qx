@@ -24,6 +24,10 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
 		var array = arrayFunc;
 		arrayFunc = function () { return array; };
 	}
+	if (resultFunc instanceof Array || Q.isPromise(resultFunc)) {
+		var expected = resultFunc;
+		resultFunc = function (result) { assert.deepEqual(result, expected); };
+	}
 
 	/**
 	 * Turns an array of elements into an array of functions
@@ -55,26 +59,13 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
 
 
 describe('#map()', function () {
+	// func, input, callback, expected
 	it('should return the result of the callback', function () {
-		return testInvocation(
-			Qx.map,
-			[1, 2, 3, 4],
-			function (x) { return x * 2; },
-			function (result) {
-				assert.deepEqual(result, [2, 4, 6, 8]);
-			}
-		);
+		return testInvocation(Qx.map, [1, 2, 3, 4], function (x) { return x * 2; }, [2, 4, 6, 8]);
 	});
 
 	it("should wait for the array promise", function () {
-		return testInvocation(
-			Qx.map,
-			Q.resolve([1, 2, 3, 4]),
-			function (x) { return x * 2; },
-			function (result) {
-				assert.deepEqual(result, [2, 4, 6, 8]);
-			}
-		);
+		return testInvocation(Qx.map, Q.resolve([1, 2, 3, 4]), function (x) { return x * 2; }, [2, 4, 6, 8]);
 	});
 	it("should wait for callback promises", function () {
 		return testInvocation(
@@ -82,7 +73,7 @@ describe('#map()', function () {
 			[new Date, "a", "b", "c"],
 			function (x, i) { return Q.delay(500).then(function () { return i ? x + i : x; }); },
 			function (result) {
-				assert((new Date - result[0]) > 500, "map() didn't wait for callback promise");
+				assert((new Date - result[0]) > 500, "didn't wait for callback promise");
 				assert.deepEqual(result, [result[0], "a1", "b2", "c3"]);
 			}
 		);
