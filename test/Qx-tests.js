@@ -5,8 +5,8 @@ var Q = require('q');
 // Don't rely on current directory
 var Qx = require('../Qx');
 
-require("mocha");
-require("mocha-as-promised")();
+var mocha = require("mocha");
+require("mocha-as-promised")(mocha);
 var assert = require("assert");
 
 /**
