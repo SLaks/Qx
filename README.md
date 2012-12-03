@@ -2,6 +2,8 @@
 
 Qx is a set of extensions to [Q](https://github.com/kriskowal/q) that make it easier to work with promises of arrays of promises.
 
+Qx brings the convenience of C# LINQ methods to Javascript promise arrays.
+
 ##Usage
 All Qx array methods take an array and a callback function that does things to items in the array. 
 
@@ -79,3 +81,7 @@ Qx.map(possibleUrls, readUrl)
   .then(Qx.any)	// Get the first URL to reply
   .then(function(result) { ... });
 ```
+
+##TODO
+ - Async locking primitives (mutexes, reader-writer-lcoks, semphores, etc that return delaying promises)
+ - `Qx.sequenceMap()` that only runs one callback chain at a time
