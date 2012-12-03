@@ -76,23 +76,41 @@ function filter(array, callback) {
 exports.filter = handleArgs.bind(filter);
 
 function some(array, callback) {
-	var defer = Q.defer();
+	var deferred = Q.defer();
+
+	var fail = function (err) {
+		if (deferred)
+			deferred.reject(err);
+		deferred = null;
+	};
 
 	map(array, function (elem, i) {
-		return Q.when(callback(elem, i), function (result) {
-			// If an element returns true, resolve immediately
-			if (result && defer) {
-				defer.resolve(true);
-				defer = null;
+		return Q.when(
+			callback(elem, i),
+			function (result) {
+				// If an element returns true, resolve immediately
+				if (result && deferred) {
+					deferred.resolve(true);
+					deferred = null;
+				}
 			}
-		});
-	}).then(function () {
-		// If we didn't resolve already, return false.
-		if (defer)
-			defer.resolve(false);
-	});
+		);
+	}).then(
+		function () {
+			// If we didn't resolve already, return false.
+			if (deferred)
+				deferred.resolve(false);
+		},
+		function (err) {
+			// If map() fails (if the callback throws an exception
+			// or returns a failing promise), fail the result
+			if (deferred)
+				deferred.reject(err);
+			deferred = null;
+		}
+	);
 
-	return defer.promise;
+	return deferred.promise;
 }
 exports.some = handleArgs.bind(some);
 
@@ -124,7 +142,7 @@ function any(promises) {
 				// If this is the first error, record it in case everything fails
 				if (firstError === undefined)
 					firstError = err;
-				
+
 				// If all of the promises failed, return the first error
 				if (resolvedCount === promises.length)
 					deferred.reject(firstError);
