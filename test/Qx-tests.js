@@ -104,15 +104,17 @@ describe('#filter()', function () {
 	it("should wait for the array promise", function () {
 		return testInvocation(Qx.filter, Q.resolve([1, 2, 3, 4]), function (x) { return !(x % 2); }, [2, 4]);
 	});
+	it("should wait for promises in the array", function () {
+		return testInvocation(Qx.filter, [Q.delay('a', 20), Q.delay('b', 20)], function (x, i) { return x === 'a'; }, ['a']);
+	});
 	it("should wait for callback promises", function () {
 		return testInvocation(
 			Qx.filter,
-			[new Date(), "a", "b", "c"],
-			function (x, i) { return Q.delay(500).then(function (r) { return x instanceof Date; }); },
+			[Q.delay(new Date(), 100), "a", "b", "c"],
+			function (x, i) { return Q.delay(x instanceof Date, 500); },
 			function (result) {
-				console.log(result);
-				assert((new Date - result[0]) > 500, "didn't wait for callback promise");
-				assert.strictEqual(result.length, 1)
+				assert((new Date - result[0]) > 600, "didn't wait for callback promise");
+				assert.strictEqual(result.length, 1);
 			}
 		);
 	});
