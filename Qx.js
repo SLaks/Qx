@@ -78,12 +78,6 @@ exports.filter = handleArgs.bind(filter);
 function some(array, callback) {
 	var deferred = Q.defer();
 
-	var fail = function (err) {
-		if (deferred)
-			deferred.reject(err);
-		deferred = null;
-	};
-
 	map(array, function (elem, i) {
 		return Q.when(
 			callback(elem, i),

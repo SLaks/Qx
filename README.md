@@ -61,6 +61,8 @@ Like the native `[].every()` method, this method returns a promise of a boolean 
 
 If the callback returns falsy for any element, the resulting promise will be resolved immediately, without waiting for the other promises to complete (although, unlike the short-circuiting `&&` operator, they will always all be evaluated).
 
+If the callback fails for some element (or if the original promise fails) before any callback returns true, the resulting promise will fail immediately.  (if a different promise already returned true, the promise will have already succeeded)
+
 ###`.some()`
 Like the native `[].some()` method, this method returns a promise of a boolean indicating whether the callback returned a (promise of a) truthy value for at least one element in the array.
 
