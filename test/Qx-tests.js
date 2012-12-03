@@ -1,5 +1,5 @@
 ﻿/*jshint node: true, camelcase: true, eqeqeq: true, forin: true, immed: true, latedef: true, newcap: true, noarg: true, undef: true, globalstrict: true*/
-/*global test:false, suite:false */
+/*global describe:false, it:false */
 "use strict";
 var Q = require('q');
 var Qx = require('..');
@@ -73,11 +73,11 @@ describe('#map()', function () {
 	it("should wait for callback promises", function () {
 		return testInvocation(
 			Qx.map,
-			[new Date, "a", "b", "c"],
+			[new Date(), "a", "b", "c"],
 			function (x, i) { return Q.delay(i ? x + i : x, 500); },
 			function (result) {
-				assert((new Date - result[0]) > 500, "didn't wait for callback promise");
-				assert((new Date - result[0]) < result.length * 500, "Callback promises didn't run in parallel");
+				assert((new Date() - result[0]) > 500, "didn't wait for callback promise");
+				assert((new Date() - result[0]) < result.length * 500, "Callback promises didn't run in parallel");
 				assert.deepEqual(result, [result[0], "a1", "b2", "c3"]);
 			}
 		);
@@ -113,7 +113,7 @@ describe('#filter()', function () {
 			[Q.delay(new Date(), 100), "a", "b", "c"],
 			function (x, i) { return Q.delay(x instanceof Date, 500); },
 			function (result) {
-				assert((new Date - result[0]) > 600, "didn't wait for callback promise");
+				assert((new Date() - result[0]) > 600, "didn't wait for callback promise");
 				assert.strictEqual(result.length, 1);
 			}
 		);
