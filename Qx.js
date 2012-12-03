@@ -45,20 +45,31 @@ function handleArgs() {
 	throw new Error("Unsupported arguments " + Array.prototype.slice.call(args).join(', '));
 }
 
+/**
+ * A version of Q.when() that runs the callback immediately if the value is not a promise.
+ */
+function eagerWhen(valueOrPromise, callback) {
+	if (Q.isPromise(valueOrPromise))
+		return valueOrPromise.then(callback)
+	else
+		return callback(valueOrPromise);
+}
+
 function map(array, callback) {
 	return Q.when(array, function (arr) {
-		return Q.all(arr.map(callback));
+		return Q.all(arr.map(function (x, i) {
+			return eagerWhen(x, function (result) { return callback(result, i); });
+		}));
 	});
 }
 exports.map = handleArgs.bind(map);
 
+var filterRejected = {};	//Marker object for when the filter returns falsy
 function filter(array, callback) {
-	return Q.when(array, function (arr) {
-		return Q.all(arr.map(callback))
-				.then(function (filterResults) {
-					return arr.filter(function (elem, i) { return filterResults[i]; });
-				});
-	});
+	return map(array, function (item, index) { return callback(item, index) ? item : filterRejected; })
+		.then(function (results) {
+			return results.filter(function (elem) { return elem !== filterRejected; });
+		});
 }
 exports.filter = handleArgs.bind(filter);
 

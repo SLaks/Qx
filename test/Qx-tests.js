@@ -24,7 +24,7 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
 		var array = arrayFunc;
 		arrayFunc = function () { return array; };
 	}
-	if (resultFunc instanceof Array || Q.isPromise(resultFunc)) {
+	if (typeof resultFunc !== "function") {
 		var expected = resultFunc;
 		resultFunc = function (result) { assert.deepEqual(result, expected); };
 	}
@@ -37,7 +37,7 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
 		return arr.map(function (item, actualIndex) {
 			return function (index) {
 				assert.strictEqual(actualIndex, index, "Function-array call passed wrong index to callback");
-				return callback(item, index);
+				return Q.when(item, function (result) { return callback(result, index); });
 			};
 		});
 	}
@@ -65,15 +65,19 @@ describe('#map()', function () {
 	});
 
 	it("should wait for the array promise", function () {
-		return testInvocation(Qx.map, Q.resolve([1, 2, 3, 4]), function (x) { return x * 2; }, [2, 4, 6, 8]);
+		return testInvocation(Qx.map, Q.delay([1, 2, 3, 4], 10), function (x) { return x * 2; }, [2, 4, 6, 8]);
+	});
+	it("should wait for promises in the array", function () {
+		return testInvocation(Qx.map, [Q.delay('a', 20), Q.delay('b', 20)], function (x) { return x + x; }, ['aa', 'bb']);
 	});
 	it("should wait for callback promises", function () {
 		return testInvocation(
 			Qx.map,
 			[new Date, "a", "b", "c"],
-			function (x, i) { return Q.delay(500).then(function () { return i ? x + i : x; }); },
+			function (x, i) { return Q.delay(i ? x + i : x, 500); },
 			function (result) {
 				assert((new Date - result[0]) > 500, "didn't wait for callback promise");
+				assert((new Date - result[0]) < result.length * 500, "Callback promises didn't run in parallel");
 				assert.deepEqual(result, [result[0], "a1", "b2", "c3"]);
 			}
 		);
@@ -86,6 +90,40 @@ describe('#map()', function () {
 				if (i > 2)
 					throw "Test error";
 				return x * 2;
+			},
+			function (result) { assert.fail("Failed callback didn't fail result " + result); },
+			function (err) { assert.strictEqual(err, "Test error"); }
+		);
+	});
+});
+describe('#filter()', function () {
+	// func, input, callback, expected
+	it('should handle the result of the callback', function () {
+		return testInvocation(Qx.filter, [1, 2, 3, 4], function (x) { return !(x % 2); }, [2, 4]);
+	});
+	it("should wait for the array promise", function () {
+		return testInvocation(Qx.filter, Q.resolve([1, 2, 3, 4]), function (x) { return !(x % 2); }, [2, 4]);
+	});
+	it("should wait for callback promises", function () {
+		return testInvocation(
+			Qx.filter,
+			[new Date(), "a", "b", "c"],
+			function (x, i) { return Q.delay(500).then(function (r) { return x instanceof Date; }); },
+			function (result) {
+				console.log(result);
+				assert((new Date - result[0]) > 500, "didn't wait for callback promise");
+				assert.strictEqual(result.length, 1)
+			}
+		);
+	});
+	it("should return the first error if a callback fails", function () {
+		return testInvocation(
+			Qx.filter,
+			[1, 2, 3, 4],
+			function (x, i) {
+				if (i > 2)
+					throw "Test error";
+				return true;
 			},
 			function (result) { assert.fail("Failed callback didn't fail result " + result); },
 			function (err) { assert.strictEqual(err, "Test error"); }
