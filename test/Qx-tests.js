@@ -2,7 +2,8 @@
 /*global describe:false, it:false */
 "use strict";
 var Q = require('q');
-var Qx = require('..');
+// Don't rely on current directory
+var Qx = require('../Qx');
 
 require("mocha");
 require("mocha-as-promised")();
