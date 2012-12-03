@@ -16,10 +16,11 @@ var assert = require("assert");
  * @param {Function}	callback	The callback to pass to the Qx method.
  * @param {Function}	resultFunc	A function to verify the results of the Qx method.  This function will be called up to four times.
  * @param {Function}	errorFunc	A function to handle errors from the Qx method.  This function will be called up to four times.
+ * @param {Boolean}		noFunctions	True to skip the method(funcArray) and method() tests.  (for methods that require both data and functions, such as filter())
  * 
  * @returns {Promise}	A promise for the completion of all four tests.
  */
-function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
+function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc, noFunctions) {
 	if (arrayFunc instanceof Array || Q.isPromise(arrayFunc)) {
 		var array = arrayFunc;
 		arrayFunc = function () { return array; };
@@ -50,10 +51,10 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc) {
 		Q.when(arrayFunc()).then(method(callback)).then(resultFunc, errorFunc),
 
 		//method(funcArray)
-		method(Q.when(arrayFunc(), createFunctionArray)).then(resultFunc, errorFunc),
+		noFunctions || method(Q.when(arrayFunc(), createFunctionArray)).then(resultFunc, errorFunc),
 
 		//method()
-		Q.when(arrayFunc(), createFunctionArray).then(method).then(resultFunc, errorFunc)
+		noFunctions || Q.when(arrayFunc(), createFunctionArray).then(method).then(resultFunc, errorFunc)
 	]);
 }
 
@@ -99,13 +100,13 @@ describe('#map()', function () {
 describe('#filter()', function () {
 	// func, input, callback, expected
 	it('should handle the result of the callback', function () {
-		return testInvocation(Qx.filter, [1, 2, 3, 4], function (x) { return !(x % 2); }, [2, 4]);
+		return testInvocation(Qx.filter, [1, 2, 3, 4], function (x) { return !(x % 2); }, [2, 4], null, true);
 	});
 	it("should wait for the array promise", function () {
-		return testInvocation(Qx.filter, Q.resolve([1, 2, 3, 4]), function (x) { return !(x % 2); }, [2, 4]);
+		return testInvocation(Qx.filter, Q.resolve([1, 2, 3, 4]), function (x) { return !(x % 2); }, [2, 4], null, true);
 	});
 	it("should wait for promises in the array", function () {
-		return testInvocation(Qx.filter, [Q.delay('a', 20), Q.delay('b', 20)], function (x, i) { return x === 'a'; }, ['a']);
+		return testInvocation(Qx.filter, [Q.delay('a', 20), Q.delay('b', 20)], function (x, i) { return x === 'a'; }, ['a'], null, true);
 	});
 	it("should wait for callback promises", function () {
 		return testInvocation(
@@ -115,7 +116,8 @@ describe('#filter()', function () {
 			function (result) {
 				assert((new Date() - result[0]) > 600, "didn't wait for callback promise");
 				assert.strictEqual(result.length, 1);
-			}
+			},
+			null, true
 		);
 	});
 	it("should return the first error if a callback fails", function () {
@@ -128,7 +130,8 @@ describe('#filter()', function () {
 				return true;
 			},
 			function (result) { assert.fail("Failed callback didn't fail result " + result); },
-			function (err) { assert.strictEqual(err, "Test error"); }
+			function (err) { assert.strictEqual(err, "Test error"); },
+			true
 		);
 	});
 });
