@@ -3,7 +3,7 @@
 Qx is a set of extensions to [Q](https://github.com/kriskowal/q) that make it easier to work with promises of arrays of promises.
 
 ##Usage
-Unless specified otherwise, all Qx methods take an array and a callback function that does things to items in the array. 
+All Qx array methods take an array and a callback function that does things to items in the array. 
 
 All callbacks receive two parameters; the item and its index.  If the array contains promises, Qx will wait for those promises to finish and pass their values to the callback.  If the callback itself returns a promise, Qx will wait for it to finish too.
 
@@ -43,7 +43,8 @@ functionsPromise.then(Qx.map)
 				.then(function(results) { ... });
 ```
 
-##Methods
+##Array Methods
+These methods can take four different parameters as described above.
 
 ###`.filter()`
 Like the native `[].filter()` method, this method returns a promise of an array containing only those items from the original array that pass a filter callback.  If the callback returns a (promise of a) falsy value for an item, that item will not appear in the final array.
@@ -59,7 +60,20 @@ This method can also be used as a `forEach()` method by ignoring return values.
 Like the native `[].every()` method, this method returns a promise of a boolean indicating whether the callback returned a (promise of a) truthy value for every element in the array.
 
 If the callback returns falsy for any element, the resulting promise will be resolved immediately, without waiting for the other promises to complete (although, unlike the short-circuiting `&&` operator, they will always all be evaluated).
+
 ###`.some()`
 Like the native `[].some()` method, this method returns a promise of a boolean indicating whether the callback returned a (promise of a) truthy value for at least one element in the array.
 
 The returned promise will be resolved as soon as at least one element returns truthy; it will not wait for the promises from the other elements to be resolved (although, unlike the short-circuiting `||` operator, they will always all be evaluated).  If none of elements return truthy, the promise will be resolved to false after all of them finish.
+
+##Promise methods
+###`.any()`
+Takes an array of promises, and returns a promise for the result of the first one to succeed.  If all of the promises fail it will return the first failure (but only after all of them fail).
+
+For example:
+```js
+var possibleUrls = [ 'http://a.example.com', 'http://b.example.com' ];
+Qx.map(possibleUrls, readUrl)
+  .then(Qx.any)	// Get the first URL to reply
+  .then(function(result) { ... });
+```

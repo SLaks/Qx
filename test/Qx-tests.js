@@ -135,3 +135,44 @@ describe('#filter()', function () {
 		);
 	});
 });
+
+function fail() { throw "Sample Failed Promise"; }
+
+describe('#any', function () {
+	it('should return the first of three promises ASAP', function () {
+		var start = new Date();
+		return Qx.any(
+			[Q.delay('a', 600), Q.delay('b', 200), Q.delay('c', 400)]
+		).then(function (result) {
+			assert((new Date() - start) < 300, "didn't wait for al failures");
+			assert.strictEqual(result, 'b');
+		});
+	});
+	it('should the first success after earlier promises fail', function () {
+		return Qx.any(
+			[Q.delay('a', 600), Q.delay('b', 200).then(fail), Q.delay('c', 400).then(fail)]
+		).then(function (result) { assert.strictEqual(result, 'a'); });
+	});
+	it('should return failure after only promise fails', function () {
+		return Qx.any(
+			[Q.delay('b', 200).then(fail)]
+		).then(
+			function (result) { assert.fail("any() succeeded on failure"); },
+			function (err) {
+				assert.strictEqual(err, 'Sample Failed Promise');
+			}
+		);
+	});
+	it('should the first failure after everything fails', function () {
+		var start = new Date();
+		return Qx.any(
+			[Q.delay('a', 600).then(fail), Q.delay('b', 200).then(function () { throw "First!";}), Q.delay('c', 400).then(fail)]
+		).then(
+			function (result) { assert.fail("any() succeeded on failure"); },
+			function (err) {
+				assert((new Date() - start) > 600, "didn't wait for al failures");
+				assert.strictEqual(err, 'First!');
+			}
+		);
+	});
+});

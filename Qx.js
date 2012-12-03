@@ -102,3 +102,36 @@ function every(array, callback) {
 }
 exports.every = handleArgs.bind(every);
 
+// Not an array function; does not accept a callback
+function any(promises) {
+	var deferred = Q.defer();
+	var firstError;
+	var resolvedCount = 0;
+
+	promises.forEach(function (p) {
+		p.then(
+			function (result) {
+				// If we already got a result, don't do anything
+				if (!deferred) return;
+				deferred.resolve(result);
+				deferred = null;
+			},
+			function (err) {
+				// If we already got a result, don't do anything
+				if (!deferred) return;
+				resolvedCount++;
+
+				// If this is the first error, record it in case everything fails
+				if (firstError === undefined)
+					firstError = err;
+				
+				// If all of the promises failed, return the first error
+				if (resolvedCount === promises.length)
+					deferred.reject(firstError);
+			}
+		);
+	});
+
+	return deferred.promise;
+}
+exports.any = any;
