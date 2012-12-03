@@ -1,4 +1,5 @@
-#Qx
+#Qx [![Build Status](https://travis-ci.org/SLaks/Qx.png)](https://travis-ci.org/SLaks/Qx)
+
 
 Qx is a set of extensions to [Q](https://github.com/kriskowal/q) that make it easier to work with promises of arrays of promises.
 
