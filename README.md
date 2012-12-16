@@ -84,5 +84,5 @@ Qx.map(possibleUrls, readUrl)
 ```
 
 ##TODO
- - Async locking primitives (mutexes, reader-writer-lcoks, semphores, etc that return delaying promises)
+ - Async locking primitives (mutexes, reader-writer-locks, sempahores, etc that return delaying promises)
  - `Qx.sequenceMap()` that only runs one callback chain at a time
