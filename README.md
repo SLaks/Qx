@@ -76,12 +76,37 @@ The returned promise will be resolved as soon as at least one element returns tr
 Takes an array of promises, and returns a promise for the result of the first one to succeed.  If all of the promises fail it will return the first failure (but only after all of them fail).
 
 For example:
-```js
+```js 
 var possibleUrls = [ 'http://a.example.com', 'http://b.example.com' ];
 Qx.map(possibleUrls, readUrl)
   .then(Qx.any)	// Get the first URL to reply
   .then(function(result) { ... });
 ```
+
+###`.breakWith()` and `.endFunction`
+These methods allow you to exit a promise chain in the middle.  
+
+For example:
+
+```js
+function findOrCreateUser(email) {
+	return store.findUser(email)
+				.then(function(user) {
+					if (user)
+						return Qx.breakWith(user);
+
+					return webService.getAdditionalDetail(email);
+				})
+				.then(function(detail) { 
+					return store.createUser(detail);
+				})
+				.fail(Qx.endFunction);
+}
+```
+`Qx.breakWith()` will throw a special marker exception containing the value, which will cause Q to skip all future `.then()` calls.
+
+At the end of the method, calling `.fail(Qx.endFunction)` will catch this marker exception and return the value, rethrowing any other errors.
+
 
 ##TODO
  - Async locking primitives (mutexes, reader-writer-locks, sempahores, etc that return delaying promises)

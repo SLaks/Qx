@@ -147,3 +147,24 @@ function any(promises) {
 	return deferred.promise;
 }
 exports.any = any;
+
+function BreakError(value) {
+	this.returnValue = value;
+}
+BreakError.prototype.message = "A function called Qx.breakWith() inside a promise chain, but did not close the scope with .fail(Qx.endFunction)";
+BreakError.prototype.toString = function () {
+	return this.message;
+};
+
+exports.breakWith = function (value) {
+	throw new BreakError(value);
+}
+exports.endFunction = function (err) {
+	// allow .fail(Qx.endFunction())
+	if (arguments.length === 0)
+		return exports.endFunction;
+
+	if (err instanceof BreakError)
+		return err.returnValue;
+	throw err;
+};

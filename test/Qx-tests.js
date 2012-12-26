@@ -255,3 +255,26 @@ describe('#any', function () {
 		);
 	});
 });
+
+describe('#breakWith', function () {
+	it('should return the value', function () {
+		return Q.resolve(4)
+				.then(function (value) {
+					Qx.breakWith("early");
+					return "unreached value";
+				})
+				.fail(Qx.endFunction)
+				.then(function (value) {
+					assert.strictEqual(value, "early");
+				});
+	});
+	it('should preserve exceptions', function () {
+		return Q.resolve(4)
+				.then(function () { throw "Real error"; })
+				.fail(Qx.endFunction)
+				.fail(function (err) {
+					assert.strictEqual(err, "Real error");
+				});
+			
+	});
+});
