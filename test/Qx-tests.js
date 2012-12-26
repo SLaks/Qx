@@ -275,6 +275,46 @@ describe('#breakWith', function () {
 				.fail(function (err) {
 					assert.strictEqual(err, "Real error");
 				});
-			
+	});
+	it('should skip chained then()s', function () {
+		return Q.resolve(4)
+				.then(function (value) {
+					Qx.breakWith("early");
+					return "unreached value";
+				})
+				.then(function () {
+					assert.fail(".then() callback after breakWith() shouldn't run");
+				})
+				.fail(Qx.endFunction);
+	});
+});
+
+describe('#withBreaks', function () {
+	it('should not run callback on breakWith()', function () {
+		return Q.resolve(4)
+				.then(function (value) {
+					Qx.breakWith("early");
+					return "unreached value";
+				})
+				.fail(Qx.withBreaks(function (err) {
+					assert.fail("Error callback should not run for breakWith()" + err);
+				}))
+				.fail(Qx.endFunction)
+				.then(function (result) {
+					assert.strictEqual(result, "early");
+				});
+	});
+	it('should run callback on other exceptions', function () {
+
+		return Q.resolve(4)
+				.then(function () { throw "Real error"; })
+				.fail(Qx.withBreaks(function (err) {
+					assert.strictEqual(err, "Real error");
+					return "recovered";
+				}))
+				.fail(Qx.endFunction)
+				.then(function (result) {
+					assert.strictEqual(result, "recovered");
+				});
 	});
 });

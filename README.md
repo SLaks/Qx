@@ -107,6 +107,30 @@ function findOrCreateUser(email) {
 
 At the end of the method, calling `.fail(Qx.endFunction)` will catch this marker exception and return the value, rethrowing any other errors.
 
+###`.withBreaks()`
+Because `.breakWith()` is implemented by throwing an exception, any error handlers (`.then(null, function)` or `.fail(function)` will incorrectly see these exceptions as false positives.  
+To fix this, any error callbacks between `.breakWith()` and `.fail(endFunction)` should be wrapped in `Qx.withBreaks()`:
+
+```js
+function findOrCreateUser(email) {
+	return store.findUser(email)
+				.then(function(user) {
+					if (user)
+						return Qx.breakWith(user);
+
+					return webService.getAdditionalDetail(email);
+				})
+				.fail(Qx.withBreaks(function(err) {
+					return fallbackWebService.getAdditionalDetail(email);
+				})
+				.then(function(detail) { 
+					return store.createUser(detail);
+				})
+				.fail(Qx.endFunction);
+}
+```
+
+
 
 ##TODO
  - Async locking primitives (mutexes, reader-writer-locks, sempahores, etc that return delaying promises)

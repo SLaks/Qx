@@ -159,6 +159,13 @@ BreakError.prototype.toString = function () {
 exports.breakWith = function (value) {
 	throw new BreakError(value);
 }
+exports.withBreaks = function (callback) {
+	return function (err) {
+		if (err instanceof BreakError)
+			throw err;
+		return callback(err);
+	};
+};
 exports.endFunction = function (err) {
 	// allow .fail(Qx.endFunction())
 	if (arguments.length === 0)
