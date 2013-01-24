@@ -60,7 +60,7 @@ function testInvocation(method, arrayFunc, callback, resultFunc, errorFunc, noFu
 }
 
 
-describe('#map()', function () {
+describe('.map()', function () {
 	// func, input, callback, expected
 	it('should return the result of the callback', function () {
 		return testInvocation(Qx.map, [1, 2, 3, 4], function (x) { return x * 2; }, [2, 4, 6, 8]);
@@ -98,7 +98,7 @@ describe('#map()', function () {
 		);
 	});
 });
-describe('#filter()', function () {
+describe('.filter()', function () {
 	// func, input, callback, expected
 	it('should handle the result of the callback', function () {
 		return testInvocation(Qx.filter, [1, 2, 3, 4], function (x) { return !(x % 2); }, [2, 4], null, true);
@@ -138,7 +138,7 @@ describe('#filter()', function () {
 });
 
 function fail() { throw "Sample Failed Promise"; }
-describe('#some()', function () {
+describe('.some()', function () {
 	// func, input, callback, expected
 	it('should work', function () {
 		return testInvocation(Qx.some, [1, 2, 3, 4], function (x) { return !(x % 2); }, true);
@@ -217,7 +217,7 @@ describe('#some()', function () {
 });
 
 
-describe('#any', function () {
+describe('.any', function () {
 	it('should return the first of three promises ASAP', function () {
 		var start = new Date();
 		return Qx.any(
@@ -256,7 +256,7 @@ describe('#any', function () {
 	});
 });
 
-describe('#breakWith', function () {
+describe('.breakWith', function () {
 	it('should return the value', function () {
 		return Q.resolve(4)
 				.then(function (value) {
@@ -289,7 +289,7 @@ describe('#breakWith', function () {
 	});
 });
 
-describe('#withBreaks', function () {
+describe('.withBreaks', function () {
 	it('should not run callback on breakWith()', function () {
 		return Q.resolve(4)
 				.then(function (value) {
