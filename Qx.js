@@ -109,8 +109,35 @@ function some(array, callback) {
 exports.some = handleArgs.bind(some);
 
 function every(array, callback) {
-	return some(array, function () { return !callback.apply(this, arguments); })
-			.then(function (result) { return !result; });
+	var deferred = Q.defer();
+
+	map(array, function (elem, i) {
+		return Q.when(
+			callback(elem, i),
+			function (result) {
+				// If an element returns false, resolve immediately
+				if (!result && deferred) {
+					deferred.resolve(false);
+					deferred = null;
+				}
+			}
+		);
+	}).then(
+		function () {
+			// If we didn't resolve already, everything was true.
+			if (deferred)
+				deferred.resolve(true);
+		},
+		function (err) {
+			// If map() fails (if the callback throws an exception
+			// or returns a failing promise), fail the result
+			if (deferred)
+				deferred.reject(err);
+			deferred = null;
+		}
+	);
+
+	return deferred.promise;
 }
 exports.every = handleArgs.bind(every);
 

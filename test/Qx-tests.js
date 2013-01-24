@@ -216,6 +216,84 @@ describe('.some()', function () {
 	});
 });
 
+describe('.every()', function () {
+	// func, input, callback, expected
+	it('should work', function () {
+		return testInvocation(Qx.every, [1, 2, 3, 4], function (x) { return (x % 2); }, false);
+	});
+	it("should wait for the array promise", function () {
+		return testInvocation(Qx.every, Q.resolve([1, 2, 3, 4]), function (x) { return false; }, false);
+	});
+	it("should wait for promises in the array", function () {
+		return testInvocation(Qx.every, [Q.delay('a', 20), Q.delay('b', 100)], function (x, i) { return x === 'b'; }, false);
+	});
+	it("should wait for callback promises", function () {
+		var start = new Date();
+		return testInvocation(
+			Qx.every,
+			[Q.delay(new Date(), 100), "a", "b", "c"],
+			function (x, i) { return Q.delay(!(x instanceof Date), 500); },
+			function (result) {
+				assert((new Date() - start) > 600, "didn't wait for callback promise");
+				assert.strictEqual(result, false);
+			}
+		);
+	});
+	it("should return the first error if a callback throws", function () {
+		return testInvocation(
+			Qx.every,
+			[1, 2, 3, 4],
+			function (x, i) {
+				if (i > 2)
+					throw "Test error";
+				return true;
+			},
+			function (result) { assert.fail("Failed callback didn't fail result " + result); },
+			function (err) { assert.strictEqual(err, "Test error"); }
+		);
+	});
+	it("should succeed if a later callback fails", function () {
+		return testInvocation(
+			Qx.every,
+			[1, 2, 3, 4],
+			function (x, i) {
+				if (i > 2)
+					throw "Test error";
+				return false;
+			},
+			false
+		);
+	});
+	it("should return the first error if a callback returns failure", function () {
+		return testInvocation(
+			Qx.every,
+			[1, 2, 3, 4],
+			function (x) {
+				return Q.delay(500 - x * 100).then(function () { throw "Error " + x; });
+			},
+			function (result) { assert.fail("Failed callback didn't fail result " + result); },
+			function (err) { assert.strictEqual(err, "Error 4"); }
+		);
+	});
+	it("should succeed if a later input promise fails", function () {
+		return testInvocation(
+			Qx.every,
+			[1, 2, 3, Q.delay(100).then(fail)],
+			function (x, i) { return false; },
+			false
+		);
+	});
+	it("should return the first error if an input promise is failed", function () {
+		return testInvocation(
+			Qx.every,
+			[Q.delay(1, 200), Q.delay(2, 200), Q.delay(3, 200), Q.delay(100).then(fail)],
+			function (x, i) { return true; },
+			function (result) { assert.fail("Failed callback didn't fail result " + result); },
+			function (err) { assert.strictEqual(err, "Sample Failed Promise"); }
+		);
+	});
+});
+
 
 describe('.any', function () {
 	it('should return the first of three promises ASAP', function () {
