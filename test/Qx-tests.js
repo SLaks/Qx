@@ -78,7 +78,7 @@ describe('.map()', function () {
 			[new Date(), "a", "b", "c"],
 			function (x, i) { return Q.delay(i ? x + i : x, 500); },
 			function (result) {
-				assert((new Date() - result[0]) > 500, "didn't wait for callback promise");
+				assert((new Date() - result[0]) >= 500, "didn't wait for callback promise");
 				assert((new Date() - result[0]) < result.length * 500, "Callback promises didn't run in parallel");
 				assert.deepEqual(result, [result[0], "a1", "b2", "c3"]);
 			}
@@ -115,7 +115,7 @@ describe('.filter()', function () {
 			[Q.delay(new Date(), 100), "a", "b", "c"],
 			function (x, i) { return Q.delay(x instanceof Date, 500); },
 			function (result) {
-				assert((new Date() - result[0]) > 600, "didn't wait for callback promise");
+				assert((new Date() - result[0]) >= 600, "didn't wait for callback promise");
 				assert.strictEqual(result.length, 1);
 			},
 			null, true
@@ -156,7 +156,7 @@ describe('.some()', function () {
 			[Q.delay(new Date(), 100), "a", "b", "c"],
 			function (x, i) { return Q.delay(x instanceof Date, 500); },
 			function (result) {
-				assert((new Date() - start) > 600, "didn't wait for callback promise");
+				assert((new Date() - start) >= 600, "didn't wait for callback promise");
 				assert.strictEqual(result, true);
 			}
 		);
@@ -234,7 +234,7 @@ describe('.every()', function () {
 			[Q.delay(new Date(), 100), "a", "b", "c"],
 			function (x, i) { return Q.delay(!(x instanceof Date), 500); },
 			function (result) {
-				assert((new Date() - start) > 600, "didn't wait for callback promise");
+				assert((new Date() - start) >= 600, "didn't wait for callback promise");
 				assert.strictEqual(result, false);
 			}
 		);
@@ -301,7 +301,7 @@ describe('.any', function () {
 		return Qx.any(
 			[Q.delay('a', 600), Q.delay('b', 200), Q.delay('c', 400)]
 		).then(function (result) {
-			assert((new Date() - start) < 300, "didn't wait for al failures");
+			assert((new Date() - start) < 300, "waited after success");
 			assert.strictEqual(result, 'b');
 		});
 	});
@@ -327,7 +327,7 @@ describe('.any', function () {
 		).then(
 			function (result) { assert.fail("any() succeeded on failure"); },
 			function (err) {
-				assert((new Date() - start) > 600, "didn't wait for al failures");
+				assert((new Date() - start) >= 600, "didn't wait for all failures");
 				assert.strictEqual(err, 'First!');
 			}
 		);
