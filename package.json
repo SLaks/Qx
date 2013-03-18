@@ -1,6 +1,6 @@
 {
   "name": "qx",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "A set of LINQ-like extensions to Q for working with arrays of promises.",
   "homepage": "https://github.com/SLaks/Qx",
   "author": "Schabse Laks <Dev@SLaks.net> (http://slaks.net)",
