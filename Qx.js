@@ -6,7 +6,7 @@ var Q = require('q');
  * A callback that takes a function from an array and executes it.
  */
 var functionConverter = function (f, index) {
-	if (Q.isPromise(f))
+	if (Q.isPromiseAlike(f))
 		return f.fcall(index);
 	else
 		return f(index);

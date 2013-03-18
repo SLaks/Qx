@@ -21,11 +21,11 @@
     "lint": "jshint Qx.js"
   },
   "dependencies": {
-    "q": ">=0.8.11"
+    "q": ">=0.8.12"
   },
   "devDependencies": {
-    "mocha": "~1.7.3",
-    "mocha-as-promised": "~1.1.0",
+    "mocha": "~1.8.1",
+    "mocha-as-promised": "~1.2.1",
     "jshint": "~0.9.1"
   }
 }
