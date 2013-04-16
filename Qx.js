@@ -185,7 +185,7 @@ BreakError.prototype.toString = function () {
 
 exports.breakWith = function (value) {
 	throw new BreakError(value);
-}
+};
 exports.withBreaks = function (callback) {
 	return function (err) {
 		if (err instanceof BreakError)
