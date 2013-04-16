@@ -28,7 +28,7 @@ function handleArgs() {
 		return method.apply(null, args);
 
 	// method(array) - Array of functions
-	if (args[0] instanceof Array || Q.isPromise(args[0]))
+	if (args[0] instanceof Array || Q.isPromiseAlike(args[0]))
 		return method(args[0], functionConverter);
 
 	// method(function) - Return function that takes array of items
@@ -49,7 +49,7 @@ function handleArgs() {
  * A version of Q.when() that runs the callback immediately if the value is not a promise.
  */
 function eagerWhen(valueOrPromise, callback) {
-	if (Q.isPromise(valueOrPromise))
+	if (Q.isPromiseAlike(valueOrPromise))
 		return valueOrPromise.then(callback);
 	else
 		return callback(valueOrPromise);
