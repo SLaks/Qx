@@ -79,7 +79,7 @@ function some(array, callback) {
 	var deferred = Q.defer();
 
 	map(array, function (elem, i) {
-		return Q.when(
+		return eagerWhen(
 			callback(elem, i),
 			function (result) {
 				// If an element returns true, resolve immediately
@@ -112,7 +112,7 @@ function every(array, callback) {
 	var deferred = Q.defer();
 
 	map(array, function (elem, i) {
-		return Q.when(
+		return eagerWhen(
 			callback(elem, i),
 			function (result) {
 				// If an element returns false, resolve immediately
