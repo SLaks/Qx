@@ -5,6 +5,8 @@ Qx is a set of extensions to [Q](https://github.com/kriskowal/q) that make it ea
 
 Qx brings the convenience of C# LINQ methods to Javascript promise arrays.
 
+Issues and pull requests welcome.
+
 ##Usage
 All Qx array methods take an array and a callback function that does things to items in the array. 
 
