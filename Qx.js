@@ -2,11 +2,13 @@
 "use strict";
 var Q = require('q');
 
+var isPromiseLike = Q.isPromise || Q.isPromiseAlike;
+
 /**
  * A callback that takes a function from an array and executes it.
  */
 var functionConverter = function (f, index) {
-	if (Q.isPromiseAlike(f))
+	if (isPromiseLike(f))
 		return f.fcall(index);
 	else
 		return f(index);
@@ -16,7 +18,7 @@ var functionConverter = function (f, index) {
  * Normalizes the four supported arguments styles for array methods.
  * Array methods can take an array and/or a callback, or neither.
  * See the README.
- * 
+ *
  * this is the function to call; arguments are the arguments passed by the caller.
  */
 function handleArgs() {
@@ -28,7 +30,7 @@ function handleArgs() {
 		return method.apply(null, args);
 
 	// method(array) - Array of functions
-	if (args[0] instanceof Array || Q.isPromiseAlike(args[0]))
+	if (args[0] instanceof Array || isPromiseLike(args[0]))
 		return method(args[0], functionConverter);
 
 	// method(function) - Return function that takes array of items
@@ -49,7 +51,7 @@ function handleArgs() {
  * A version of Q.when() that runs the callback immediately if the value is not a promise.
  */
 function eagerWhen(valueOrPromise, callback) {
-	if (Q.isPromiseAlike(valueOrPromise))
+	if (isPromiseLike(valueOrPromise))
 		return valueOrPromise.then(callback);
 	else
 		return callback(valueOrPromise);
