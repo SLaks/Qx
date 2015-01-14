@@ -2,7 +2,7 @@
 "use strict";
 var Q = require('q');
 
-var isPromiseLike = Q.isPromiseLike || Q.isPromiseAlike;
+var isPromiseLike = Q.isPromise || Q.isPromiseAlike;
 
 /**
  * A callback that takes a function from an array and executes it.
