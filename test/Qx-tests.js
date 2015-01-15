@@ -6,7 +6,6 @@ var Q = require('q');
 var Qx = require('../Qx');
 
 var mocha = require("mocha");
-require("mocha-as-promised")(mocha);
 var assert = require("assert");
 
 /**

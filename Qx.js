@@ -6,7 +6,7 @@ var Q = require('q');
  * A callback that takes a function from an array and executes it.
  */
 var functionConverter = function (f, index) {
-	if (Q.isPromiseAlike(f))
+	if (Q.isPromise(f))
 		return f.fcall(index);
 	else
 		return f(index);
@@ -28,7 +28,7 @@ function handleArgs() {
 		return method.apply(null, args);
 
 	// method(array) - Array of functions
-	if (args[0] instanceof Array || Q.isPromiseAlike(args[0]))
+	if (args[0] instanceof Array || Q.isPromise(args[0]))
 		return method(args[0], functionConverter);
 
 	// method(function) - Return function that takes array of items
@@ -49,7 +49,7 @@ function handleArgs() {
  * A version of Q.when() that runs the callback immediately if the value is not a promise.
  */
 function eagerWhen(valueOrPromise, callback) {
-	if (Q.isPromiseAlike(valueOrPromise))
+	if (Q.isPromise(valueOrPromise))
 		return valueOrPromise.then(callback);
 	else
 		return callback(valueOrPromise);
